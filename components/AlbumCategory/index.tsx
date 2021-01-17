@@ -19,6 +19,7 @@ const AlbumCategory = (props: AlbumCategoryProps) => {
         renderItem={({ item }) => <AlbumComponent album={item} />}
         keyExtractor={({ id }) => id}
         horizontal={true}
+        showsHorizontalScrollIndicator={false}
       />
     </View>
   );
