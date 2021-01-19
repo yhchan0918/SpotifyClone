@@ -1,27 +1,39 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, Image } from 'react-native';
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
-
-import styles from './styles';
 import { Sound } from 'expo-av/build/Audio/Sound';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { API, graphqlOperation } from 'aws-amplify';
 
-const song = {
-  id: '1',
-  uri:
-    'https://drive.google.com/file/d/1RYr-tzitYifTSoL1GnAF4rKh0TbZPdB9/view?usp=sharing',
-  imageUri:
-    'https://cache.boston.com/resize/bonzai-fba/Globe_Photo/2011/04/14/1302796985_4480/539w.jpg',
-  title: 'High on You',
-  artist: 'Helen',
-};
+import styles from './styles';
+import { getSong } from '../../graphql/queries';
+import AppContext from '../../AppContext';
 
 const PlayerWidget = () => {
+  const [song, setSong] = useState(null);
   const [sound, setSound] = useState<Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const [duration, setDuration] = useState<number | null>(null);
   const [position, setPosition] = useState<number | null>(null);
+
+  const { songId } = useContext(AppContext);
+
+  useEffect(() => {
+    const fetchSong = async () => {
+      try {
+        const data = await API.graphql(
+          graphqlOperation(getSong, { id: songId })
+        );
+
+        setSong(data.data.getSong);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchSong();
+  }, [songId]);
 
   const onPlaybackStatusUpdate = (status) => {
     setIsPlaying(status.isPlaying);
@@ -33,23 +45,27 @@ const PlayerWidget = () => {
     if (sound) {
       await sound.unloadAsync();
     }
-    const { sound: currentSong } = Audio.Sound.createAsync(
+    const { sound: newSound } = await Sound.createAsync(
       { uri: song.uri },
       { shouldPlay: isPlaying },
       onPlaybackStatusUpdate
     );
-    setSound(currentSong);
+
+    setSound(newSound);
   };
+
   useEffect(() => {
-    playCurrentSong();
-  }, []);
+    if (song) {
+      playCurrentSong();
+    }
+  }, [song]);
 
   const onPlayPausePress = async () => {
     if (!sound) {
       return;
     }
     if (isPlaying) {
-      await sound.stopAsync();
+      await sound.pauseAsync();
     } else {
       await sound.playAsync();
     }
@@ -58,8 +74,13 @@ const PlayerWidget = () => {
     if (sound === null || duration === null || position === null) {
       return 0;
     }
+
     return (position / duration) * 100;
   };
+
+  if (!song) {
+    return null;
+  }
 
   return (
     <View style={styles.container}>
