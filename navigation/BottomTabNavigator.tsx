@@ -12,7 +12,9 @@ import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import AlbumScreen from '../screens/AlbumScreen';
 import HomeScreen from '../screens/HomeScreen';
-import TabTwoScreen from '../screens/SearchScreen';
+import SearchScreen from '../screens/SearchScreen';
+import YourLibraryScreen from '../screens/YourLibraryScreen';
+import PremiumScreen from '../screens/PremiumScreen';
 import { BottomTabParamList, HomeParamList, TabTwoParamList } from '../types';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
@@ -41,7 +43,7 @@ export default function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="Search"
-        component={TabTwoNavigator}
+        component={SearchScreen}
         options={{
           tabBarIcon: ({ color }) => (
             <EvilIcons
@@ -55,7 +57,7 @@ export default function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="Your Library"
-        component={TabTwoNavigator}
+        component={YourLibraryScreen}
         options={{
           tabBarIcon: ({ color }) => (
             <MaterialIcons
@@ -69,7 +71,7 @@ export default function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="Premium"
-        component={TabTwoNavigator}
+        component={PremiumScreen}
         options={{
           tabBarIcon: ({ color }) => (
             <FontAwesome5
@@ -103,19 +105,5 @@ function HomeNavigator() {
         options={{ headerTitle: 'Album' }}
       />
     </HomeStack.Navigator>
-  );
-}
-
-const TabTwoStack = createStackNavigator<TabTwoParamList>();
-
-function TabTwoNavigator() {
-  return (
-    <TabTwoStack.Navigator>
-      <TabTwoStack.Screen
-        name="TabTwoScreen"
-        component={TabTwoScreen}
-        options={{ headerTitle: 'Tab Two Title' }}
-      />
-    </TabTwoStack.Navigator>
   );
 }
